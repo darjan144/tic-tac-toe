@@ -1,0 +1,11 @@
+{
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "unity-mcp"
+  ],
+  "permissions": {
+    "allow": [
+      "mcp__unity-mcp__Unity_RunCommand"
+    ]
+  }
+}
