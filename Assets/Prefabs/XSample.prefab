@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8476670257518745001}
   - component: {fileID: 8491595929255965478}
   - component: {fileID: 3985140682331021387}
+  - component: {fileID: 3352468838356261225}
   m_Layer: 5
   m_Name: XSample
   m_TagString: Untagged
@@ -91,3 +92,18 @@ MonoBehaviour:
   _duration: 0.5
   _ease: 6
   _image: {fileID: 8491595929255965478}
+--- !u!114 &3352468838356261225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142347100574180417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 870b19237e3d8514c9b4b822eb4c3e0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Cell
+  _image: {fileID: 8491595929255965478}
+  _button: {fileID: 0}
+  _drawAnimation: {fileID: 3985140682331021387}

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4318842174104448361}
   - component: {fileID: 1308627636580189036}
   - component: {fileID: 3086960019719976478}
+  - component: {fileID: 8987451457461400486}
   m_Layer: 5
   m_Name: Osample
   m_TagString: Untagged
@@ -91,3 +92,18 @@ MonoBehaviour:
   _duration: 0.5
   _ease: 6
   _image: {fileID: 1308627636580189036}
+--- !u!114 &8987451457461400486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823839347362082465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 870b19237e3d8514c9b4b822eb4c3e0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Cell
+  _image: {fileID: 1308627636580189036}
+  _button: {fileID: 0}
+  _drawAnimation: {fileID: 3086960019719976478}

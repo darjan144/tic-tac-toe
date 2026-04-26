@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7372705016130317728
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3352579355564542326}
+  - component: {fileID: 3451196898723592250}
+  - component: {fileID: 6219039326481917143}
+  - component: {fileID: 5524764168071597754}
+  - component: {fileID: 7847465325249742965}
+  - component: {fileID: 3004260018616638979}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3352579355564542326
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372705016130317728}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 966.548, y: 434.69897, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3451196898723592250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372705016130317728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7cce1db685363e4a9ba6950598dcec1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+--- !u!114 &6219039326481917143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372705016130317728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8603ccbb615bddc40ad3977e5b98afe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThemeManager
+  _availableThemes:
+  - XSprite: {fileID: 21300000, guid: a10aea6f6f871be4b867bf3635d0fb46, type: 2}
+    OSprite: {fileID: 21300000, guid: 4a55de94cdcfd8645968821caa23609f, type: 2}
+  - XSprite: {fileID: 21300000, guid: 2f84ab26f924e6a488cfff566aa89da5, type: 2}
+    OSprite: {fileID: 21300000, guid: 82b1faed0b021574890d9e156419f0aa, type: 2}
+  - XSprite: {fileID: 21300000, guid: 98ae413a1142cf24eb977914fe7619e2, type: 2}
+    OSprite: {fileID: 21300000, guid: 4bd37b7c60c9b7543b47ddac43953baa, type: 2}
+--- !u!114 &5524764168071597754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372705016130317728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1488602abc344446a3af7a18a47e467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  _bgmClip: {fileID: 8300000, guid: 6ee789b53d7d8984cbd79e2c0ba1b28e, type: 3}
+  _clickSFX1: {fileID: 8300000, guid: 067ea2bbe73eaac4c9b9d822eb1ec1bc, type: 3}
+  _clickSFX2: {fileID: 8300000, guid: 54ef2035fc5f3d847a92b45fd1a2a425, type: 3}
+  _popSFX: {fileID: 8300000, guid: 2849ee19ad49fb046a43b73ae36863cd, type: 3}
+  _wooshSFX: {fileID: 8300000, guid: 23a6515a6854a1d49a4c20085b2a34f7, type: 3}
+--- !u!114 &7847465325249742965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372705016130317728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d14c5fcf39ea4ad4b8813f367c804c55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameFlowManager
+--- !u!114 &3004260018616638979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372705016130317728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 796e6683e2038f949ba97c94a0772c3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrientationManager

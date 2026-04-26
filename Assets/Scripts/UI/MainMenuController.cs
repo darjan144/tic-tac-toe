@@ -26,7 +26,7 @@ public class MainMenuController : MonoBehaviour
         _exitButton.gameObject.SetActive(false);
 #endif
 
-        if (AudioManager.Instance != null)
+        if (AudioManager.Instance != null && SaveManager.Instance != null && SaveManager.Instance.IsBGMEnabled)
             AudioManager.Instance.PlayBGM();
     }
 
