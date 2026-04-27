@@ -34,16 +34,15 @@ public class GameHUD : MonoBehaviour
         _p2MovesText.text = p2Moves.ToString();
     }
 
-    public void UpdateTurn(int player)
+    public void UpdateTurn(Player player)
     {
-        _currentTurnText.text = player == 1 ? "PLAYER ONE'S TURN (X)" : "PLAYER TWO'S TURN (O)";
+        _currentTurnText.text = player == Player.P1 ? "PLAYER ONE'S TURN (X)" : "PLAYER TWO'S TURN (O)";
     }
 
     void OnSettingsClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
+        AudioManager.Instance?.PlayButtonClick();
+        AudioManager.Instance?.PlayWooshSFX();
         _settingsPopup.Open();
     }
 }

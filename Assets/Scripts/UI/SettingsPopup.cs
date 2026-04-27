@@ -39,14 +39,16 @@ public class SettingsPopup : PopupBase
 
     void OnBGMToggleChanged(bool value)
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.SetBGMEnabled(value);
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.IsBGMEnabled = value;
+
+        AudioManager.Instance?.SetBGMEnabled(value);
     }
 
     void OnSFXToggleChanged(bool value)
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.SetSFXEnabled(value);
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.IsSFXEnabled = value;
     }
 
     void OnFullscreenToggleChanged(bool value)
@@ -56,9 +58,7 @@ public class SettingsPopup : PopupBase
 
     void OnCloseClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
+        AudioManager.Instance?.PlayButtonClick();
         Close();
     }
 }

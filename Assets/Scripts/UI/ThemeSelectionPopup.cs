@@ -49,8 +49,7 @@ public class ThemeSelectionPopup : PopupBase
 
     void SelectTheme(int index)
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
+        AudioManager.Instance?.PlayButtonClick();
 
         _selectedIndex = index;
         for (int i = 0; i < _themeOptions.Length; i++)
@@ -59,21 +58,14 @@ public class ThemeSelectionPopup : PopupBase
 
     void OnStartClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
-        if (ThemeManager.Instance != null)
-            ThemeManager.Instance.SelectTheme(_selectedIndex);
-
-        if (GameFlowManager.Instance != null)
-            GameFlowManager.Instance.LoadGame();
+        AudioManager.Instance?.PlayButtonClick();
+        ThemeManager.Instance?.SelectTheme(_selectedIndex);
+        GameFlowManager.Instance?.LoadGame();
     }
 
     void OnCloseClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
+        AudioManager.Instance?.PlayButtonClick();
         Close();
     }
 }

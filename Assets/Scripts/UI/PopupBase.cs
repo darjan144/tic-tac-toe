@@ -10,18 +10,22 @@ public abstract class PopupBase : MonoBehaviour
     public virtual void Open()
     {
         gameObject.SetActive(true);
+
+        DOTween.Kill(_canvasGroup);
+        DOTween.Kill(_popupPanel);
+
         _canvasGroup.alpha = 0f;
         _popupPanel.localScale = Vector3.one * 0.8f;
 
         _canvasGroup.DOFade(1f, _animDuration);
         _popupPanel.DOScale(Vector3.one, _animDuration).SetEase(Ease.OutBack);
-
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayWooshSFX();
     }
 
     public virtual void Close()
     {
+        DOTween.Kill(_canvasGroup);
+        DOTween.Kill(_popupPanel);
+
         _canvasGroup.DOFade(0f, _animDuration);
         _popupPanel.DOScale(Vector3.one * 0.8f, _animDuration)
             .SetEase(Ease.InBack)

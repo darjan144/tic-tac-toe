@@ -81,18 +81,9 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
 
     public void SetBGMEnabled(bool enabled)
     {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.IsBGMEnabled = enabled;
-
         if (enabled)
             PlayBGM();
         else
             StopBGM();
-    }
-
-    public void SetSFXEnabled(bool enabled)
-    {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.IsSFXEnabled = enabled;
     }
 }

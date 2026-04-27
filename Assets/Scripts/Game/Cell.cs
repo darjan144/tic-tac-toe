@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -10,8 +11,12 @@ public class Cell : MonoBehaviour
 
     public enum CellState { Empty, X, O }
 
+    public event Action<CellState, Sprite> OnMarkSet;
+    public event Action OnCleared;
+
     public CellState State { get; private set; }
     public Button Button => _button;
+    public Image Image => _image;
     public RectTransform RectTransform => (RectTransform)transform;
 
     public Tween SetMark(CellState state, Sprite sprite)
@@ -33,8 +38,7 @@ public class Cell : MonoBehaviour
             _image.fillOrigin = (int)Image.Origin360.Bottom;
         }
 
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayPopSFX();
+        OnMarkSet?.Invoke(state, sprite);
 
         return _drawAnimation.Play();
     }
@@ -44,5 +48,6 @@ public class Cell : MonoBehaviour
         State = CellState.Empty;
         _image.enabled = false;
         _drawAnimation.ResetFill();
+        OnCleared?.Invoke();
     }
 }

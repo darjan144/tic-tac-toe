@@ -20,18 +20,13 @@ public class ExitConfirmPopup : PopupBase
 
     void OnYesClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
-        if (GameFlowManager.Instance != null)
-            GameFlowManager.Instance.QuitGame();
+        AudioManager.Instance?.PlayButtonClick();
+        GameFlowManager.Instance?.QuitGame();
     }
 
     void OnNoClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
+        AudioManager.Instance?.PlayButtonClick();
         Close();
     }
 }

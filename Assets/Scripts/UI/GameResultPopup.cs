@@ -34,19 +34,13 @@ public class GameResultPopup : PopupBase
 
     void OnRetryClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
-        if (GameFlowManager.Instance != null)
-            GameFlowManager.Instance.LoadGame();
+        AudioManager.Instance?.PlayButtonClick();
+        GameFlowManager.Instance?.LoadGame();
     }
 
     void OnExitClicked()
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayButtonClick();
-
-        if (GameFlowManager.Instance != null)
-            GameFlowManager.Instance.LoadMainMenu();
+        AudioManager.Instance?.PlayButtonClick();
+        GameFlowManager.Instance?.LoadMainMenu();
     }
 }

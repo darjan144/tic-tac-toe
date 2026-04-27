@@ -6,7 +6,6 @@ public class StrikeAnimation : MonoBehaviour
     [SerializeField] RectTransform _lineTransform;
     [SerializeField] DrawAnimation _drawAnimation;
 
-    // winLineIndex: 0-2 rows, 3-5 columns, 6 diag TL-BR, 7 diag TR-BL
     public Tween Play(RectTransform middleCell, int winLineIndex)
     {
         _lineTransform.localPosition = new Vector3(middleCell.localPosition.x, middleCell.localPosition.y, _lineTransform.localPosition.z);
@@ -21,9 +20,6 @@ public class StrikeAnimation : MonoBehaviour
 
         _lineTransform.localRotation = Quaternion.Euler(0f, 0f, rotation);
         _lineTransform.gameObject.SetActive(true);
-
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayWooshSFX();
 
         return _drawAnimation.Play();
     }

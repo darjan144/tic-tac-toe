@@ -54,16 +54,15 @@ public class SaveManager : SingletonMonoBehaviour<SaveManager>
 
     public float AverageDuration => TotalGames > 0 ? CumulativeDuration / TotalGames : 0f;
 
-    // winner: 1 = P1, 2 = P2, 0 = draw
-    public void RecordGameResult(int winner, float duration)
+    public void RecordGameResult(Player winner, float duration)
     {
         TotalGames++;
         CumulativeDuration += duration;
 
         switch (winner)
         {
-            case 1: P1Wins++; break;
-            case 2: P2Wins++; break;
+            case Player.P1: P1Wins++; break;
+            case Player.P2: P2Wins++; break;
             default: Draws++; break;
         }
 
