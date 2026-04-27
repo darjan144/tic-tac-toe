@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameFlowManager : SingletonMonoBehaviour<GameFlowManager>
@@ -16,8 +17,10 @@ public class GameFlowManager : SingletonMonoBehaviour<GameFlowManager>
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
+#elif UNITY_WEBGL
+        Application.ExternalEval("location.reload();");
 #else
-        UnityEngine.Application.Quit();
+        Application.Quit();
 #endif
     }
 }

@@ -33,10 +33,6 @@ public class MainMenuController : MonoBehaviour
         _portraitSettingsButton.onClick.AddListener(OnSettingsClicked);
         _portraitExitButton.onClick.AddListener(OnExitClicked);
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        _exitButton.gameObject.SetActive(false);
-        _portraitExitButton.gameObject.SetActive(false);
-#endif
     }
 
     void OnPlayClicked()
