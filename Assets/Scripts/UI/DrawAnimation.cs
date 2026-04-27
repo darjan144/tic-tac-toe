@@ -8,7 +8,7 @@ public class DrawAnimation : MonoBehaviour
     [SerializeField] float _duration = 0.5f;
     [SerializeField] Ease _ease = Ease.OutQuad;
 
-    [SerializeField] private Image _image;
+    [SerializeField] Image _image;
 
     public Tween Play()
     {

@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class OrientationLayoutSwitcher : MonoBehaviour
 {
-    [SerializeField] GameObject landscapeLayout;
-    [SerializeField] GameObject portraitLayout;
+    [SerializeField] GameObject _landscapeLayout;
+    [SerializeField] GameObject _portraitLayout;
 
     void OnEnable()
     {
@@ -19,7 +19,7 @@ public class OrientationLayoutSwitcher : MonoBehaviour
     void Apply(OrientationManager.Orientation orientation)
     {
         bool landscape = orientation == OrientationManager.Orientation.Landscape;
-        if (landscapeLayout) landscapeLayout.SetActive(landscape);
-        if (portraitLayout) portraitLayout.SetActive(!landscape);
+        if (_landscapeLayout) _landscapeLayout.SetActive(landscape);
+        if (_portraitLayout) _portraitLayout.SetActive(!landscape);
     }
 }

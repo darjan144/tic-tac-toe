@@ -37,10 +37,7 @@ public class StatsPopup : PopupBase
         _p2WinsText.text = sm.P2Wins.ToString();
         _drawsText.text = sm.Draws.ToString();
 
-        float avg = sm.AverageDuration;
-        int minutes = Mathf.FloorToInt(avg / 60f);
-        int seconds = Mathf.FloorToInt(avg % 60f);
-        _avgDurationText.text = $"{minutes:00}:{seconds:00}";
+        _avgDurationText.text = TimeFormatUtil.FormatDuration(sm.AverageDuration);
     }
 
     void OnCloseClicked()

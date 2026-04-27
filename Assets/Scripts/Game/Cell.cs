@@ -24,19 +24,7 @@ public class Cell : MonoBehaviour
         State = state;
         _image.sprite = sprite;
         _image.enabled = true;
-
-        if (state == CellState.X)
-        {
-            _image.type = Image.Type.Filled;
-            _image.fillMethod = Image.FillMethod.Radial180;
-            _image.fillOrigin = (int)Image.Origin180.Top;
-        }
-        else if (state == CellState.O)
-        {
-            _image.type = Image.Type.Filled;
-            _image.fillMethod = Image.FillMethod.Radial360;
-            _image.fillOrigin = (int)Image.Origin360.Bottom;
-        }
+        CellVisuals.ApplyFill(_image, state);
 
         OnMarkSet?.Invoke(state, sprite);
 

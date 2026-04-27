@@ -23,9 +23,7 @@ public class GameHUD : MonoBehaviour
 
     public void UpdateTimer(float seconds)
     {
-        int minutes = Mathf.FloorToInt(seconds / 60f);
-        int secs = Mathf.FloorToInt(seconds % 60f);
-        _timerText.text = $"{minutes:00}:{secs:00}";
+        _timerText.text = TimeFormatUtil.FormatDuration(seconds);
     }
 
     public void UpdateMoves(int p1Moves, int p2Moves)

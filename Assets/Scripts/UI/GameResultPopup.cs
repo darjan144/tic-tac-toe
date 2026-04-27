@@ -24,10 +24,7 @@ public class GameResultPopup : PopupBase
     public void Show(string result, float duration)
     {
         _resultText.text = result;
-
-        int minutes = Mathf.FloorToInt(duration / 60f);
-        int seconds = Mathf.FloorToInt(duration % 60f);
-        _durationText.text = $"GAME DURATION: {minutes:00}:{seconds:00}";
+        _durationText.text = $"GAME DURATION: {TimeFormatUtil.FormatDuration(duration)}";
 
         base.Open();
     }

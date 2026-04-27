@@ -8010,6 +8010,7 @@ GameObject:
   - component: {fileID: 1933772092}
   - component: {fileID: 1933772091}
   - component: {fileID: 1933772090}
+  - component: {fileID: 1933772095}
   - component: {fileID: 1933772094}
   m_Layer: 0
   m_Name: Canvas
@@ -8120,8 +8121,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 038dd9a3fd7df5643a8cf4821130eeea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrientationLayoutSwitcher
-  landscapeLayout: {fileID: 2132828835}
-  portraitLayout: {fileID: 1773610561}
+  _landscapeLayout: {fileID: 2132828835}
+  _portraitLayout: {fileID: 1773610561}
+--- !u!114 &1933772095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1933772089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 796e6683e2038f949ba97c94a0772c3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrientationManager
 --- !u!1 &1945732668
 GameObject:
   m_ObjectHideFlags: 0
