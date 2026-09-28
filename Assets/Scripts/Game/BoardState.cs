@@ -18,6 +18,11 @@ public class BoardState
         _board[index] = state;
     }
 
+    public void ClearCell(int index)
+    {
+        _board[index] = CellState.Empty;
+    }
+
     public bool IsEmpty(int index) => _board[index] == CellState.Empty;
 
     public int CheckWin()

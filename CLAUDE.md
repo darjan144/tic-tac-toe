@@ -81,3 +81,44 @@ Two scenes needed (in `Assets/Scenes/`):
 - Popups should be reusable prefabs activated/deactivated on the Canvas
 - Scene transitions via `SceneManager.LoadScene()`
 - DOTween for popup animations, strike line animation, and UI polish
+
+---
+
+## Thesis: Design Patterns in Mobile Game Development
+
+This tic-tac-toe project doubles as a **demonstration codebase** for a bachelor thesis (diplomski rad, FTN Novi Sad) on design and architectural patterns in mobile game development. The thesis covers 8 patterns — each must be demonstrable with working code in this project (or the companion patterns demo project where that's clearer).
+
+**Full brief:** `SCREENSHOT_ILLUSTRATIONS_BRIEF.md`
+
+### The 8 Patterns
+
+| # | Pattern | Likely already in TTT | May need adding/extending |
+|---|---------|----------------------|--------------------------|
+| 1 | **Singleton** | GameManager, AudioManager | Ensure DontDestroyOnLoad, console logging of access |
+| 2 | **Observer** | Events for UI updates (win, turn change) | Make event wiring visible in Inspector (UnityEvents) |
+| 3 | **Command** | — | Add undo/redo for moves, command history |
+| 4 | **State Machine** | Game flow (menu → playing → game over) | Make states explicit classes, log transitions |
+| 5 | **Object Pool** | — | Pool X/O markers or VFX instead of Instantiate/Destroy |
+| 6 | **Flyweight** | — | SharedData ScriptableObject for cell/marker properties (or use existing demo scene) |
+| 7 | **Decorator / Factory** | — | Factory for marker creation; decorator for marker visual variants |
+| 8 | **Service Locator / DI** | — | Audio via Service Locator, NullService fallback |
+
+### Companion Demo Project
+
+A separate patterns demo project has isolated scenes for each pattern (see brief for paths). For some patterns (Flyweight profiler comparison, Object Pool gun demo), those scenes may produce better illustrations than tic-tac-toe.
+
+### Screenshot Guidelines (for the student)
+
+- FTN template: figures numbered as "Slika 1", "Slika 2", etc., captioned below, referenced by number in text
+- Unity Editor light theme preferred for print readability
+- Clean, cropped, high-res — no personal info visible
+- Size: 1/8 to 1/2 of A4; larger goes to appendix
+- Save to `Project Materials/Screenshots/` with descriptive filenames (e.g., `singleton_inspector_gamemanager.png`)
+- The student writes all thesis text and captures all screenshots — Claude assists with code only
+
+### Code Guidelines for Pattern Implementations
+
+- Add `Debug.Log` statements at pattern-relevant points (singleton access, event firing, command execution, state transitions) so Console screenshots show the pattern working
+- Keep pattern code clean and clearly separated — the reader should see the pattern, not game complexity
+- Use `[Header]` and `[Tooltip]` attributes on serialized fields so Inspector screenshots are self-documenting
+- Prefer explicit, textbook-style implementations over clever shortcuts — clarity for the thesis reader matters more than production elegance

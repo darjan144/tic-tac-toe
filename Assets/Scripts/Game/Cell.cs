@@ -15,27 +15,28 @@ public class Cell : MonoBehaviour
     public event Action OnCleared;
 
     public CellState State { get; private set; }
+    public Sprite CurrentSprite { get; private set; }
     public Button Button => _button;
-    public Image Image => _image;
     public RectTransform RectTransform => (RectTransform)transform;
 
-    public Tween SetMark(CellState state, Sprite sprite)
+    void Awake()
+    {
+        if (_image != null) _image.enabled = false;
+    }
+
+    public void SetMark(CellState state, Sprite sprite)
     {
         State = state;
-        _image.sprite = sprite;
-        _image.enabled = true;
-        CellVisuals.ApplyFill(_image, state);
-
+        CurrentSprite = sprite;
+        Debug.Log($"[Observer] Cell {gameObject.name}: firing OnMarkSet({state})");
         OnMarkSet?.Invoke(state, sprite);
-
-        return _drawAnimation.Play();
     }
 
     public void Clear()
     {
         State = CellState.Empty;
-        _image.enabled = false;
-        _drawAnimation.ResetFill();
+        CurrentSprite = null;
+        Debug.Log($"[Observer] Cell {gameObject.name}: firing OnCleared");
         OnCleared?.Invoke();
     }
 }

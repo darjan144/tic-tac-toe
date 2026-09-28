@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameResultPopup _resultPopup;
     [SerializeField] StrikeAnimation _landscapeStrike;
     [SerializeField] StrikeAnimation _portraitStrike;
+    [SerializeField] MarkerPool _markerPool;
 
     BoardState _board;
     ThemeManager.ThemeData _theme;
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour
     int _p2Moves;
     float _gameTimer;
     bool _gameActive;
+    CommandManager _commandManager;
 
     StrikeAnimation ActiveStrike =>
         OrientationManager.CurrentOrientation == OrientationManager.Orientation.Portrait
@@ -37,6 +39,9 @@ public class GameManager : MonoBehaviour
         _p2Moves = 0;
         _gameTimer = 0f;
         _gameActive = true;
+        _commandManager = new CommandManager();
+
+        if (_markerPool != null) _markerPool.ReturnAll();
 
         for (int i = 0; i < _cells.Length; i++)
         {
@@ -82,9 +87,66 @@ public class GameManager : MonoBehaviour
             _p2Moves++;
         }
 
-        _board.Place(index, state);
-        _cells[index].SetMark(state, sprite);
+        var cmd = new PlaceMarkCommand(index, state, sprite, _board, _cells[index], _markerPool);
+        _commandManager.ExecuteCommand(cmd);
+
         AudioManager.Instance?.PlayPopSFX();
+        _hud.UpdateMoves(_p1Moves, _p2Moves);
+
+        int winLine = _board.CheckWin();
+        if (winLine >= 0)
+        {
+            EndGame(_currentPlayer, winLine);
+            return;
+        }
+
+        if (_board.CheckDraw())
+        {
+            EndGame(Player.None, -1);
+            return;
+        }
+
+        _currentPlayer = _currentPlayer == Player.P1 ? Player.P2 : Player.P1;
+        _hud.UpdateTurn(_currentPlayer);
+    }
+
+    public void OnUndo()
+    {
+        if (!_gameActive || !_commandManager.CanUndo) return;
+
+        _commandManager.Undo();
+
+        _currentPlayer = _currentPlayer == Player.P1 ? Player.P2 : Player.P1;
+
+        if (_currentPlayer == Player.P1) _p1Moves--;
+        else _p2Moves--;
+
+        _hud.UpdateMoves(_p1Moves, _p2Moves);
+        _hud.UpdateTurn(_currentPlayer);
+    }
+
+    public void OnRedo()
+    {
+        if (!_gameActive || !_commandManager.CanRedo) return;
+
+        CellState state;
+        Sprite sprite;
+
+        if (_currentPlayer == Player.P1)
+        {
+            state = CellState.X;
+            sprite = _theme?.XSprite;
+            _p1Moves++;
+        }
+        else
+        {
+            state = CellState.O;
+            sprite = _theme?.OSprite;
+            _p2Moves++;
+        }
+
+        _commandManager.Redo();
+
         _hud.UpdateMoves(_p1Moves, _p2Moves);
 
         int winLine = _board.CheckWin();
@@ -107,6 +169,7 @@ public class GameManager : MonoBehaviour
     void EndGame(Player winner, int winLineIndex)
     {
         _gameActive = false;
+        GameFlowManager.Instance?.SetGameOver();
 
         SaveManager.Instance?.RecordGameResult(winner, _gameTimer);
 

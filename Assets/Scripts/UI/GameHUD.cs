@@ -11,14 +11,23 @@ public class GameHUD : MonoBehaviour
     [SerializeField] Button _settingsButton;
     [SerializeField] SettingsPopup _settingsPopup;
 
+    [Header("Command Pattern")]
+    [SerializeField] Button _undoButton;
+    [SerializeField] Button _redoButton;
+    [SerializeField] GameManager _gameManager;
+
     void OnEnable()
     {
         _settingsButton.onClick.AddListener(OnSettingsClicked);
+        if (_undoButton != null) _undoButton.onClick.AddListener(OnUndoClicked);
+        if (_redoButton != null) _redoButton.onClick.AddListener(OnRedoClicked);
     }
 
     void OnDisable()
     {
         _settingsButton.onClick.RemoveListener(OnSettingsClicked);
+        if (_undoButton != null) _undoButton.onClick.RemoveListener(OnUndoClicked);
+        if (_redoButton != null) _redoButton.onClick.RemoveListener(OnRedoClicked);
     }
 
     public void UpdateTimer(float seconds)
@@ -42,5 +51,17 @@ public class GameHUD : MonoBehaviour
         AudioManager.Instance?.PlayButtonClick();
         AudioManager.Instance?.PlayWooshSFX();
         _settingsPopup.Open();
+    }
+
+    void OnUndoClicked()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        _gameManager.OnUndo();
+    }
+
+    void OnRedoClicked()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        _gameManager.OnRedo();
     }
 }

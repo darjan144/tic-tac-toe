@@ -15,6 +15,7 @@ public class CellMirror : MonoBehaviour
     {
         _source.OnMarkSet += OnMarkSet;
         _source.OnCleared += OnCleared;
+        Debug.Log($"[Observer] CellMirror {gameObject.name}: subscribing to {_source.name}");
         SyncToSource();
     }
 
@@ -22,10 +23,12 @@ public class CellMirror : MonoBehaviour
     {
         _source.OnMarkSet -= OnMarkSet;
         _source.OnCleared -= OnCleared;
+        Debug.Log($"[Observer] CellMirror {gameObject.name}: unsubscribing from {_source.name}");
     }
 
     void OnMarkSet(CellState state, Sprite sprite)
     {
+        Debug.Log($"[Observer] CellMirror {gameObject.name}: received OnMarkSet({state}) from {_source.name}");
         _image.sprite = sprite;
         _image.enabled = true;
         CellVisuals.ApplyFill(_image, state);
@@ -47,10 +50,8 @@ public class CellMirror : MonoBehaviour
             return;
         }
 
-        _image.sprite = _source.Image.sprite;
-        _image.type = _source.Image.type;
-        _image.fillMethod = _source.Image.fillMethod;
-        _image.fillOrigin = _source.Image.fillOrigin;
+        _image.sprite = _source.CurrentSprite;
+        CellVisuals.ApplyFill(_image, _source.State);
         _image.fillAmount = 1f;
         _image.enabled = true;
     }

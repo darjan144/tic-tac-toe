@@ -22,6 +22,7 @@ public class OrientationManager : UIBehaviour
         if (newOrientation == CurrentOrientation) return;
 
         CurrentOrientation = newOrientation;
+        Debug.Log($"[Observer] OrientationManager: firing OnOrientationChanged({newOrientation})");
         OnOrientationChanged?.Invoke(CurrentOrientation);
     }
 }
