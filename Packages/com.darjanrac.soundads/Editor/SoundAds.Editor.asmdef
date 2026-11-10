@@ -1,0 +1,18 @@
+{
+    "name": "SoundAds.Editor",
+    "rootNamespace": "SoundAds.Editor",
+    "references": [
+        "SoundAds.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

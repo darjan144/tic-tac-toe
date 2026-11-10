@@ -22,6 +22,26 @@ public class SaveManager : SingletonMonoBehaviour<SaveManager>
         }
     }
 
+    /// <summary>User consent for personalised audio ads (GDPR). Off until the player opts in.</summary>
+    public bool AdsConsent
+    {
+        get => PlayerPrefs.GetInt("AdsConsent", 0) == 1;
+        set
+        {
+            PlayerPrefs.SetInt("AdsConsent", value ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+    }
+
+    public bool IsThemeUnlocked(int themeIndex) => PlayerPrefs.GetInt($"ThemeUnlocked_{themeIndex}", 0) == 1;
+
+    public void UnlockTheme(int themeIndex)
+    {
+        PlayerPrefs.SetInt($"ThemeUnlocked_{themeIndex}", 1);
+        PlayerPrefs.Save();
+        Debug.Log($"[Save] Theme {themeIndex} unlocked");
+    }
+
     public int TotalGames
     {
         get => PlayerPrefs.GetInt("TotalGames", 0);

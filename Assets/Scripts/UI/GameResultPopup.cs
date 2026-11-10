@@ -25,6 +25,7 @@ public class GameResultPopup : PopupBase
     {
         _resultText.text = result;
         _durationText.text = $"GAME DURATION: {TimeFormatUtil.FormatDuration(duration)}";
+        SetButtonsInteractable(true);
 
         base.Open();
     }
@@ -32,7 +33,23 @@ public class GameResultPopup : PopupBase
     void OnRetryClicked()
     {
         AudioManager.Instance?.PlayButtonClick();
-        GameFlowManager.Instance?.LoadGame();
+
+        if (!GameAds.ShouldShowBetweenGamesAd())
+        {
+            GameFlowManager.Instance?.LoadGame();
+            return;
+        }
+
+        // Between-games audio ad. OnAdFinished is guaranteed (even on failure), so the game can't get stuck.
+        SetButtonsInteractable(false);
+        GameAds.Show(AdPlacements.BetweenGames, SoundAds.AdFormat.Standard, SoundAds.AdMoment.None,
+            onFinished: _ => GameFlowManager.Instance?.LoadGame());
+    }
+
+    void SetButtonsInteractable(bool interactable)
+    {
+        _retryButton.interactable = interactable;
+        _exitButton.interactable = interactable;
     }
 
     void OnExitClicked()

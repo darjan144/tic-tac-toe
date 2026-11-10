@@ -1,0 +1,22 @@
+{
+    "name": "SoundAds.Tests.Runtime",
+    "rootNamespace": "SoundAds.Tests",
+    "references": [
+        "SoundAds.Runtime",
+        "UnityEngine.TestRunner",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

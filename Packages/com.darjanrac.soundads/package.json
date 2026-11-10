@@ -1,0 +1,25 @@
+{
+  "name": "com.darjanrac.soundads",
+  "version": "0.1.0",
+  "displayName": "SoundAds SDK",
+  "description": "In-app audio advertising SDK for Unity. Rewarded and standard (mute-after-5s) audio ads, game-moment targeting, device volume gating and audio focus on Android, impression/quartile event tracking.",
+  "unity": "6000.0",
+  "author": {
+    "name": "Darjan Rac"
+  },
+  "keywords": ["ads", "audio", "monetization", "sdk", "rewarded"],
+  "dependencies": {
+    "com.unity.ugui": "2.0.0",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.unitywebrequest": "1.0.0",
+    "com.unity.modules.unitywebrequestaudio": "1.0.0",
+    "com.unity.modules.androidjni": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Basic Integration",
+      "description": "Minimal scene script showing Initialize, LoadAd, ShowAd and reward handling.",
+      "path": "Samples~/BasicIntegration"
+    }
+  ]
+}

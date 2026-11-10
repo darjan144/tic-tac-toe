@@ -1,0 +1,47 @@
+[
+  {
+    "adId": "nebula-juice-01",
+    "format": "standard",
+    "audioFile": "nebula-juice.wav",
+    "advertiser": "Nebula Juice",
+    "title": "Taste the galaxy",
+    "clickUrl": "https://example.com/nebula",
+    "targetMoments": [ "win", "reward" ]
+  },
+  {
+    "adId": "pixel-mobile-01",
+    "format": "standard",
+    "audioFile": "pixel-mobile.wav",
+    "advertiser": "Pixel Mobile",
+    "title": "Unlimited data, unlimited play",
+    "clickUrl": "https://example.com/pixel",
+    "targetMoments": []
+  },
+  {
+    "adId": "cozy-socks-01",
+    "format": "standard",
+    "audioFile": "cozy-socks.wav",
+    "advertiser": "Cozy Socks Co.",
+    "title": "Better luck next time, in comfort",
+    "clickUrl": "https://example.com/socks",
+    "targetMoments": [ "draw", "loss" ]
+  },
+  {
+    "adId": "starlight-coffee-01",
+    "format": "rewarded",
+    "audioFile": "starlight-coffee.wav",
+    "advertiser": "Starlight Coffee",
+    "title": "Your reward is brewing",
+    "clickUrl": "https://example.com/coffee",
+    "targetMoments": []
+  },
+  {
+    "adId": "orbit-shoes-01",
+    "format": "rewarded",
+    "audioFile": "orbit-shoes.wav",
+    "advertiser": "Orbit Running",
+    "title": "Earn it. Run it.",
+    "clickUrl": "https://example.com/orbit",
+    "targetMoments": [ "reward", "win" ]
+  }
+]

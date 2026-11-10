@@ -12,6 +12,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] StrikeAnimation _portraitStrike;
     [SerializeField] MarkerPool _markerPool;
 
+    [Header("Ads")]
+    [Tooltip("Free undos per game. After these are used, an extra undo costs one rewarded audio ad.")]
+    [SerializeField, Min(0)] int _freeUndosPerGame = 1;
+
+    int _undosRemaining;
+
+    /// <summary>True when an undo is possible but the free undos are spent (a rewarded ad unlocks one).</summary>
+    public bool UndoRequiresAd => _gameActive && _commandManager.CanUndo && _undosRemaining <= 0;
+
     BoardState _board;
     ThemeManager.ThemeData _theme;
     Player _currentPlayer;
@@ -40,6 +49,7 @@ public class GameManager : MonoBehaviour
         _gameTimer = 0f;
         _gameActive = true;
         _commandManager = new CommandManager();
+        _undosRemaining = _freeUndosPerGame;
 
         if (_markerPool != null) _markerPool.ReturnAll();
 
@@ -56,11 +66,13 @@ public class GameManager : MonoBehaviour
         _hud.UpdateMoves(0, 0);
         _hud.UpdateTimer(0f);
         _hud.UpdateTurn(_currentPlayer);
+        _hud.UpdateUndo(false);
     }
 
     void Update()
     {
         if (!_gameActive) return;
+        if (SoundAds.SoundAdsSdk.IsShowingAd) return; // ad time doesn't count towards game duration
 
         _gameTimer += Time.deltaTime;
         _hud.UpdateTimer(_gameTimer);
@@ -108,12 +120,22 @@ public class GameManager : MonoBehaviour
 
         _currentPlayer = _currentPlayer == Player.P1 ? Player.P2 : Player.P1;
         _hud.UpdateTurn(_currentPlayer);
+        _hud.UpdateUndo(UndoRequiresAd);
+    }
+
+    /// <summary>Reward callback: one more undo for this game.</summary>
+    public void GrantExtraUndo()
+    {
+        _undosRemaining++;
+        Debug.Log($"[Ads] Extra undo granted ({_undosRemaining} available)");
     }
 
     public void OnUndo()
     {
         if (!_gameActive || !_commandManager.CanUndo) return;
+        if (_undosRemaining <= 0) return;
 
+        _undosRemaining--;
         _commandManager.Undo();
 
         _currentPlayer = _currentPlayer == Player.P1 ? Player.P2 : Player.P1;
@@ -123,6 +145,7 @@ public class GameManager : MonoBehaviour
 
         _hud.UpdateMoves(_p1Moves, _p2Moves);
         _hud.UpdateTurn(_currentPlayer);
+        _hud.UpdateUndo(UndoRequiresAd);
     }
 
     public void OnRedo()
@@ -164,6 +187,7 @@ public class GameManager : MonoBehaviour
 
         _currentPlayer = _currentPlayer == Player.P1 ? Player.P2 : Player.P1;
         _hud.UpdateTurn(_currentPlayer);
+        _hud.UpdateUndo(UndoRequiresAd);
     }
 
     void EndGame(Player winner, int winLineIndex)
@@ -172,6 +196,10 @@ public class GameManager : MonoBehaviour
         GameFlowManager.Instance?.SetGameOver();
 
         SaveManager.Instance?.RecordGameResult(winner, _gameTimer);
+
+        // Pre-buffer the between-games ad while the strike animation / result popup plays,
+        // tagged with the moment so advertisers can target wins vs draws.
+        GameAds.Preload(AdPlacements.BetweenGames, SoundAds.AdFormat.Standard, GameAds.MomentFor(winner));
 
         string result;
         if (winner == Player.P1)

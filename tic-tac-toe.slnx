@@ -1,0 +1,9 @@
+﻿<Solution>
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="SoundAds.Runtime.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="SoundAds.Tests.Runtime.csproj" />
+  <Project Path="SoundAds.Tests.Editor.csproj" />
+  <Project Path="SoundAds.Editor.csproj" />
+</Solution>

@@ -16,6 +16,10 @@ public class GameHUD : MonoBehaviour
     [SerializeField] Button _redoButton;
     [SerializeField] GameManager _gameManager;
 
+    TMP_Text _undoLabel;
+    string _undoDefaultText = "UNDO";
+    bool _rewardedAdInProgress;
+
     void OnEnable()
     {
         _settingsButton.onClick.AddListener(OnSettingsClicked);
@@ -53,10 +57,45 @@ public class GameHUD : MonoBehaviour
         _settingsPopup.Open();
     }
 
+    public void UpdateUndo(bool requiresAd)
+    {
+        if (_undoLabel == null && _undoButton != null)
+        {
+            _undoLabel = _undoButton.GetComponentInChildren<TMP_Text>(true);
+            if (_undoLabel != null) _undoDefaultText = _undoLabel.text;
+        }
+
+        if (_undoLabel != null)
+            _undoLabel.text = requiresAd ? "+1 UNDO (AD)" : _undoDefaultText;
+    }
+
     void OnUndoClicked()
     {
         AudioManager.Instance?.PlayButtonClick();
-        _gameManager.OnUndo();
+
+        if (!_gameManager.UndoRequiresAd)
+        {
+            _gameManager.OnUndo();
+            return;
+        }
+
+        if (_rewardedAdInProgress) return;
+        _rewardedAdInProgress = true;
+        _undoButton.interactable = false;
+
+        // Rewarded audio ad: listen to the end, and the undo happens straight away.
+        GameAds.Show(AdPlacements.ExtraUndo, SoundAds.AdFormat.Rewarded, SoundAds.AdMoment.Reward,
+            onFinished: _ =>
+            {
+                _rewardedAdInProgress = false;
+                if (_undoButton != null) _undoButton.interactable = true;
+                GameAds.Preload(AdPlacements.ExtraUndo, SoundAds.AdFormat.Rewarded, SoundAds.AdMoment.Reward);
+            },
+            onReward: () =>
+            {
+                _gameManager.GrantExtraUndo();
+                _gameManager.OnUndo();
+            });
     }
 
     void OnRedoClicked()

@@ -12,6 +12,16 @@ public class ThemeManager : SingletonMonoBehaviour<ThemeManager>
 
     [SerializeField] ThemeData[] _availableThemes;
 
+    [Header("Ads")]
+    [Tooltip("The last theme is premium: it is unlocked by listening to a rewarded audio ad.")]
+    [SerializeField] bool _lastThemeIsPremium = true;
+
+    public bool IsPremium(int index) =>
+        _lastThemeIsPremium && _availableThemes.Length > 1 && index == _availableThemes.Length - 1;
+
+    public bool IsLocked(int index) =>
+        IsPremium(index) && (SaveManager.Instance == null || !SaveManager.Instance.IsThemeUnlocked(index));
+
     public ThemeData SelectedTheme { get; private set; }
     public int SelectedThemeIndex { get; private set; }
     public int ThemeCount => _availableThemes.Length;

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SoundAds.Server.Tests/SoundAds.Server.Tests.csproj" />
+  <Project Path="SoundAds.Server/SoundAds.Server.csproj" />
+</Solution>

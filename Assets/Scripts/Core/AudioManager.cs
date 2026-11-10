@@ -1,7 +1,10 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class AudioManager : SingletonMonoBehaviour<AudioManager>
 {
+    const float AD_FADE_DURATION = 0.3f;
+
     [Header("Music")]
     [SerializeField] AudioClip _bgmClip;
 
@@ -14,6 +17,8 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
     AudioSource _bgmSource;
     AudioSource[] _sfxPool;
     int _sfxPoolIndex;
+    float _bgmVolume = 1f;
+    bool _adPlaying;
 
     const int SFX_POOL_SIZE = 4;
 
@@ -25,6 +30,7 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
         _bgmSource = CreateAudioSource("BGM");
         _bgmSource.loop = true;
         _bgmSource.clip = _bgmClip;
+        _bgmVolume = _bgmSource.volume;
 
         _sfxPool = new AudioSource[SFX_POOL_SIZE];
         for (int i = 0; i < SFX_POOL_SIZE; i++)
@@ -58,6 +64,7 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
     public void PlaySFX(AudioClip clip)
     {
         if (clip == null) return;
+        if (_adPlaying) return; // never talk over an audio ad
         if (SaveManager.Instance != null && !SaveManager.Instance.IsSFXEnabled) return;
 
         _sfxPool[_sfxPoolIndex].PlayOneShot(clip);
@@ -81,9 +88,42 @@ public class AudioManager : SingletonMonoBehaviour<AudioManager>
 
     public void SetBGMEnabled(bool enabled)
     {
-        if (enabled)
+        if (enabled && !_adPlaying)
             PlayBGM();
-        else
+        else if (!enabled)
             StopBGM();
+    }
+
+    // ---- Audio ads: the game yields the audio channel while an ad is audible ----
+
+    /// <summary>Fades out and pauses music, and suppresses SFX, while an audio ad plays.</summary>
+    public void PauseBGMForAd()
+    {
+        _adPlaying = true;
+        _bgmSource.DOKill();
+        if (!_bgmSource.isPlaying) return;
+
+        _bgmSource.DOFade(0f, AD_FADE_DURATION)
+            .SetUpdate(true)
+            .OnComplete(() => _bgmSource.Pause());
+    }
+
+    /// <summary>Resumes and fades music back in after an ad (if BGM is enabled).</summary>
+    public void ResumeBGMAfterAd()
+    {
+        _adPlaying = false;
+        _bgmSource.DOKill();
+
+        bool bgmEnabled = SaveManager.Instance == null || SaveManager.Instance.IsBGMEnabled;
+        if (!bgmEnabled)
+        {
+            _bgmSource.volume = _bgmVolume;
+            return;
+        }
+
+        _bgmSource.volume = 0f;
+        if (_bgmSource.time > 0f) _bgmSource.UnPause();
+        else _bgmSource.Play();
+        _bgmSource.DOFade(_bgmVolume, AD_FADE_DURATION).SetUpdate(true);
     }
 }
