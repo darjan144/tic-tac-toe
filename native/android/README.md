@@ -7,15 +7,21 @@ The native half of the SoundAds Unity SDK. It is one Kotlin `object`, `com.darja
 
 ## Build
 
-You need JDK 17 and the Android SDK (compileSdk 34). The easiest way to get both is Android Studio: open this folder (`native/android`) and let it sync. Alternatively, install Unity's **Android Build Support** module, which bundles both under `Editor/Data/PlaybackEngines/AndroidPlayer`, and set `JAVA_HOME` and `ANDROID_HOME` to point at them.
+You need JDK 17 and the Android SDK (compileSdk 34). Unity's **Android Build Support** module bundles both, so you don't need Android Studio. In PowerShell:
 
-The Gradle wrapper isn't committed yet. Generate it once with `gradle wrapper --gradle-version 8.7`, or let Android Studio create it. Then build and copy the AAR into the Unity package:
-
-```bash
-./gradlew copyAarToUnity
+```powershell
+$AP = "C:\Program Files\Unity\Hub\Editor\6000.3.11f1\Editor\Data\PlaybackEngines\AndroidPlayer"
+$env:JAVA_HOME = "$AP\OpenJDK"; $env:ANDROID_HOME = "$AP\SDK"
+.\gradlew.bat copyAarToUnity
 ```
 
-The AAR lands in `Packages/com.darjanrac.soundads/Plugins/Android/soundads-bridge.aar`. In Unity, select it and make sure only the **Android** platform is ticked.
+The Gradle wrapper (8.14) is committed. The AAR lands in `Packages/com.darjanrac.soundads/Plugins/Android/soundads-bridge.aar`. Unity sets `.aar` files to Android only by default.
+
+### Notes
+
+- **No kotlin-stdlib at runtime.** Unity's Gradle build doesn't ship the Kotlin standard library, so the bridge must not call into it. `build.gradle.kts` turns off the compiler's null-check intrinsics (`-Xno-param-assertions`, `-Xno-call-assertions`, `-Xno-receiver-assertions`), and the code avoids constructs that emit `Intrinsics` calls. For example, it uses `getSystemService(AudioManager::class.java)` rather than an `as` cast. To check a build, run `javap -c` on the class in `classes.jar`: it should show no `kotlin/jvm/internal` calls.
+- **Build tools.** Unity's SDK ships only build-tools 36.0.0, so the module pins `buildToolsVersion = "36.0.0"`. Otherwise the Android Gradle plugin tries to download 34.0.0 into the read-only Unity install.
+- **`local.properties`.** If an IDE generates it, `sdk.dir` must use forward slashes (`C:/Program Files/...`). Single backslashes are escape characters in `.properties` files and give "The filename, directory name, or volume label syntax is incorrect".
 
 ## C# side
 

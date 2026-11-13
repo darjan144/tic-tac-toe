@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 970d7224133492b4b93198785e667e85, type: 3}
+  m_Name: SoundAdsSettings
+  m_EditorClassIdentifier: SoundAds.Runtime::SoundAds.SoundAdsSettings
+  apiKey: test-key
+  serverUrl: http://10.67.239.154:5080
+  testMode: 0
+  fallbackToOfflineAds: 1
+  standardMuteDelaySec: 5
+  lowVolumeThreshold: 0.3
+  requestTimeoutSec: 8
+  eventFlushIntervalSec: 5
+  verboseLogging: 1
+  editorSimulatedVolume: 1

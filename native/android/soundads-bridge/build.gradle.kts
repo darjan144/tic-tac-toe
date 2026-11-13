@@ -6,6 +6,9 @@ plugins {
 android {
     namespace = "com.darjanrac.soundads"
     compileSdk = 34
+    // Unity's bundled Android SDK ships only build-tools 36.0.0; pin it so AGP doesn't try
+    // to download 34.0.0 into the (read-only) Unity install folder.
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         minSdk = 23
@@ -24,6 +27,14 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+        // Unity's Gradle build does not ship kotlin-stdlib. Without these flags the compiler
+        // inserts kotlin.jvm.internal.Intrinsics null checks, which throw NoClassDefFoundError
+        // on device and silently push the SDK onto simulated device audio.
+        freeCompilerArgs += listOf(
+            "-Xno-param-assertions",
+            "-Xno-call-assertions",
+            "-Xno-receiver-assertions",
+        )
     }
 }
 

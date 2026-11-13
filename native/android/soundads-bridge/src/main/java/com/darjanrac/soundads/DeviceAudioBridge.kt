@@ -28,8 +28,10 @@ object DeviceAudioBridge {
         Log.d(TAG, "Audio focus changed: $change")
     }
 
+    // Typed overload (API 23+) instead of `getSystemService(...) as AudioManager`: the cast makes
+    // kotlinc emit Intrinsics.checkNotNull, and Unity's build has no kotlin-stdlib to back it.
     private fun audioManager(context: Context): AudioManager =
-        context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        context.applicationContext.getSystemService(AudioManager::class.java)
 
     /**
      * Current media (STREAM_MUSIC) volume, normalised to 0..1.

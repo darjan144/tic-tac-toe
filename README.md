@@ -1,145 +1,219 @@
-# tic-tac-toe
+# tic-tac-toe × SoundAds
 
-Local two-player Tic-Tac-Toe in **Unity 6 (6000.3.11f1)**, URP, uGUI and DOTween. It supports portrait and landscape.
+A two-player Tic-Tac-Toe game for Unity 6, plus **SoundAds**, a full in-app **audio advertising SDK** built from scratch alongside it. The repo holds the whole ad stack end to end:
 
-The game is also the **publisher app** for **SoundAds**, an in-app audio ad SDK in the style of Audiomob, which lives in this repo. You don't need an account or an SDK from anyone else.
-
-| Part | Where | What it is |
+| Part | Where | Tech |
 |---|---|---|
-| Game | `Assets/` | The tic-tac-toe game. It integrates the SDK through `Assets/Scripts/Ads/`. |
-| **SoundAds Unity SDK** | `Packages/com.darjanrac.soundads/` | Embedded UPM package: the public API, ad playback, the banner and event tracking. |
-| **Ad server** | `backend/SoundAds.Server/` | ASP.NET Core (.NET 10) API that serves ads and collects events, plus a dashboard. |
-| **Android native bridge** | `native/android/` | Kotlin library for device volume, mute detection and audio focus. It is built as an `.aar` for Unity. |
+| **Game** (publisher app) | [`Assets/`](Assets/) | Unity 6000.3.11f1, URP, uGUI, DOTween |
+| **SoundAds Unity SDK** | [`Packages/com.darjanrac.soundads/`](Packages/com.darjanrac.soundads/) | Embedded UPM package, C# |
+| **Android native bridge** | [`native/android/`](native/android/) | Kotlin, built as an `.aar` |
+| **Ad server and dashboard** | [`backend/`](backend/) | ASP.NET Core minimal API, .NET 10 |
+
+It has been tested end to end on a physical Android phone: the game serves spoken ads from the server, the Kotlin bridge pauses Spotify and refuses ads on a muted device, and impressions and completions show up live on the dashboard.
 
 ---
 
-## How the pieces fit
+## Architecture
 
 ```
- ┌──────────── Unity game (Assets/) ────────────┐
- │  GameAds.cs ── AdPlacements.cs               │
- │      │  Initialize / LoadAd / ShowAd / events │
- │      ▼                                        │
- │  SoundAds SDK (Packages/com.darjanrac.soundads)
- │   ├─ HttpAdNetwork ───── HTTP ──────────────────► backend/SoundAds.Server
- │   │    └ falls back to MockAdNetwork offline  │      GET  /v1/ads   (ad + audio URL)
- │   ├─ EventTracker ────── HTTP ──────────────────►      POST /v1/events (impressions…)
- │   ├─ AdPlayer + AdOverlayView (banner)        │      GET  /dashboard
- │   └─ AndroidDeviceAudio ── JNI ──┐            │
- └──────────────────────────────────┼────────────┘
-                                    ▼
-             soundads-bridge.aar (native/android, Kotlin)
-             volume · mute · audio focus (pauses Spotify etc.)
+ ┌──────────────── Unity game (Assets/) ─────────────────┐
+ │  GameAds.cs ── AdPlacements.cs                         │
+ │      │  Initialize / LoadAd / ShowAd / events          │
+ │      ▼                                                 │
+ │  SoundAds SDK  (Packages/com.darjanrac.soundads)       │
+ │   ├─ HttpAdNetwork ─────── HTTP ──────────────────────────►  backend/SoundAds.Server
+ │   │    └─ FallbackAdNetwork → MockAdNetwork (offline)  │       GET  /health
+ │   ├─ EventTracker (batched, retried) ─ HTTP ──────────────►    GET  /v1/ads      → ad JSON + audio URL
+ │   ├─ AdPlayer + AdOverlayView (runtime uGUI banner)    │       POST /v1/events   → impressions, quartiles…
+ │   └─ AndroidDeviceAudio ─── JNI ──┐                    │       GET  /dashboard   → live report
+ └───────────────────────────────────┼────────────────────┘
+                                     ▼
+              soundads-bridge.aar  (native/android, Kotlin)
+              media volume · mute detection · audio focus
 ```
 
-- **Only the Unity project is needed to play.** If the server can't be reached, the SDK serves built-in offline test ads with generated jingle audio, so the game always works, including in the Editor and on WebGL.
-- **The server** provides the real spoken ads, plus tracking and the dashboard.
-- **The Kotlin AAR** is used only in Android builds. Without it, Android falls back to simulated device audio: no mute check, and other apps' music isn't paused.
+**Things worth a look:**
 
-## Ads in the game
-
-| Placement | Format | Where it plays |
-|---|---|---|
-| `standard_between_games` | Standard: mute unlocks after 5 s | On every 2nd **Retry**. It loads while the win-line animation plays. |
-| `rewarded_extra_undo` | Rewarded | Each game has 1 free undo. After that, the button reads **+1 UNDO (AD)**. |
-| `rewarded_theme_unlock` | Rewarded | Tapping the locked last theme ("LISTEN TO UNLOCK") unlocks it permanently. |
-
-- **Moments:** every ad request is tagged with the game moment: win, draw or reward.
-- **Audio:** game music fades out and sound effects are muted while an ad plays.
-- **Consent:** the **Settings → Personalised ads** toggle sets GDPR consent. With it off, ads are still served, but they are non-personalised (`npa=1`) and carry no session id.
+- **Small public API.** `SoundAdsSdk` is one static facade with five methods and five events. Everything else is `internal` and visible only to the SDK's own editor and test assemblies, so the public API can be versioned.
+- **Exactly one completion callback.** Every `ShowAd` ends with exactly one `OnAdFinished` (`Completed`, `Muted` or `Failed`), so publishers always know when to resume their game.
+- **Never breaks the game.** If the server is unreachable, a `FallbackAdNetwork` decorator switches to built-in offline ads. If the native bridge is missing or a JNI call throws, the SDK falls back to simulated device audio. Exceptions in publisher event handlers are logged and contained.
+- **Audio done right.** Ads play on unscaled time with `ignoreListenerPause`, game music fades out and SFX mute during an ad, and on Android the SDK takes transient audio focus, so music apps pause and then resume.
+- **Respects the player.** Ads never play to a muted device. Rewarded ads prompt the player to turn up the volume. Standard ads become mutable after 5 s. GDPR consent switches requests to non-personalised (`npa=1`) with no session id.
+- **Tested at every layer.** 17 EditMode and 9 PlayMode SDK tests, plus 10 server integration tests.
 
 ---
 
-## Running it
+## The game
 
-### 1. Editor (quickest)
+Local two-player Tic-Tac-Toe in portrait or landscape: themes, stats saved between sessions, settings, a win-line strike animation, a result popup with the game's duration, and undo.
 
-1. Open the project in Unity 6000.3.11f1.
-2. Optional: start the server (step 2) for real ads. If you skip it, offline ads are used.
-3. Open `Assets/Scenes/MainMenu.unity` and press Play.
-4. Watch the Console for `[SoundAds]` (SDK) and `[Ads]` (game) log lines.
+The codebase also serves as the demonstration project for a bachelor's thesis on design patterns in mobile games. You can find a **Singleton** (`SingletonMonoBehaviour`), an explicit **State Machine** (`GameStateMachine`), **Command** with undo (`ICommand`, `PlaceMarkCommand`, `CommandManager`), an **Object Pool** (`MarkerPool`), and the **Observer** pattern through C# events. The SDK itself adds **Facade**, **Strategy** (`IAdNetwork`, `IDeviceAudio`) and **Decorator** (`FallbackAdNetwork`).
 
-### 2. Ad server
+### Ads in the game
 
-You need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
+| Placement | Format | Trigger |
+|---|---|---|
+| `standard_between_games` | Standard (mutable after 5 s) | Every 2nd **Retry**. It preloads while the win-line animation plays. |
+| `rewarded_extra_undo` | Rewarded | After the free undo is used, the button reads **+1 UNDO (AD)**. |
+| `rewarded_theme_unlock` | Rewarded | Tapping the locked theme ("LISTEN TO UNLOCK") unlocks it permanently. |
 
-```bash
-cd backend/SoundAds.Server
-dotnet run --urls http://0.0.0.0:5080
+Every request is tagged with the game moment (win, draw or reward) so advertisers can target it. **Settings → Personalised ads** controls consent.
+
+### Integrating the SDK
+
+```csharp
+using SoundAds;
+
+SoundAdsSdk.OnAdStarted     += _ => music.Pause();
+SoundAdsSdk.OnAdFinished    += (_, result) => music.UnPause();
+SoundAdsSdk.OnRewardGranted += placement => GrantExtraUndo();
+
+SoundAdsSdk.SetConsent(userConsented);
+SoundAdsSdk.Initialize(ok =>
+    SoundAdsSdk.LoadAd("rewarded_extra_undo", AdFormat.Rewarded, AdMoment.Reward));
+
+// later
+if (SoundAdsSdk.IsAdReady("rewarded_extra_undo"))
+    SoundAdsSdk.ShowAd("rewarded_extra_undo");
 ```
 
-- Dashboard: http://localhost:5080/dashboard
-- Tests: `dotnet test backend`
-- Endpoint details: [backend/README.md](backend/README.md)
-
-`0.0.0.0` makes the server reachable from other devices on your network, which an Android phone needs. If you only test in the Editor, `http://localhost:5080` is enough.
-
-### 3. SDK settings
-
-In Unity, choose **Tools → SoundAds → Create or Select Settings**. That creates `Assets/Resources/SoundAdsSettings.asset`, which is also editable under **Project Settings → SoundAds**.
-
-| Field | Editor | Android device |
-|---|---|---|
-| API Key | `test-key` | `test-key` |
-| Server Url | `http://localhost:5080` | See step 5 |
-| Test Mode | Off; on = offline ads only | Off |
-| Fallback To Offline Ads | On | On |
-
-Use **Test connection** to confirm the Editor can reach the server. Without the asset, the SDK uses the defaults shown above.
+The full API, guarantees and wire format are in the [SDK README](Packages/com.darjanrac.soundads/README.md).
 
 ---
 
-## Android build checklist
+## Quick start: Editor
 
-The project's build target is currently **WebGL**. To ship the ads on Android:
+1. Open the project in **Unity 6000.3.11f1**.
+2. Optional: start the server (see [Run the ad server](#1-run-the-ad-server)). Without it you get offline jingle ads.
+3. Open `Assets/Scenes/MainMenu.unity` and press **Play**.
+4. Filter the Console by `[SoundAds]` (SDK) and `[Ads]` (game).
 
-### 1. Install the Android module
-In **Unity Hub**, go to **Installs → 6000.3.11f1 → Add modules** and add **Android Build Support**, including the OpenJDK and Android SDK & NDK tools.
+---
 
-### 2. Switch the platform
-Go to **File → Build Profiles → Android → Switch Platform**.
+## Full Android build: game, SDK, bridge and server on a phone
 
-### 3. Build the Kotlin bridge
-Build the AAR into the package once. You need JDK 17 and the Android SDK, either from Android Studio or from the Unity module above.
+### Prerequisites
 
-```bash
-cd native/android
-gradle wrapper --gradle-version 8.7   # first time only (or open the folder in Android Studio)
-./gradlew copyAarToUnity
+| What | Notes |
+|---|---|
+| Unity 6000.3.11f1 with **Android Build Support** | Add it in Unity Hub with the **OpenJDK** and **Android SDK & NDK** options. It provides JDK 17, the Android SDK and `adb`, so you don't need Android Studio. |
+| [.NET 10 SDK](https://dotnet.microsoft.com/download) | For the ad server. |
+| An Android phone | With Developer options and USB debugging turned on, if you use a cable. |
+
+The commands below are PowerShell. They use Unity's bundled toolchain, so set this variable in **every** new terminal:
+
+```powershell
+$AP = "C:\Program Files\Unity\Hub\Editor\6000.3.11f1\Editor\Data\PlaybackEngines\AndroidPlayer"
 ```
 
-- This writes `Packages/com.darjanrac.soundads/Plugins/Android/soundads-bridge.aar`.
-- In Unity, select the `.aar` and make sure only the **Android** platform is ticked.
-- If you use the Unity module's JDK and SDK, point the build at them by setting:
-  - `JAVA_HOME` to `…/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK`
-  - `ANDROID_HOME` to `…/AndroidPlayer/SDK`
-- Details: [native/android/README.md](native/android/README.md).
+### 1. Run the ad server
 
-### 4. Allow HTTP to the development server
-The dev server is plain `http://`, and Android blocks cleartext traffic by default. Open **Project Settings → Player → Android → Other Settings** and set **Allow downloads over HTTP** to **Always allowed**, or to *Allowed in development builds* together with a Development Build.
+Leave this terminal open:
 
-For production, use an `https://` server and leave this setting at *Not allowed*.
+```powershell
+cd backend\SoundAds.Server
+dotnet run --no-launch-profile --urls http://0.0.0.0:5080
+```
 
-### 5. Let the phone reach the server
-On a phone, `localhost` means the phone itself, not your PC. Pick one of these:
+Check it at http://localhost:5080/health and http://localhost:5080/dashboard. Binding to `0.0.0.0` makes the server reachable from the phone. Events are kept in memory, so restarting the server clears the dashboard.
 
-- **USB with `adb reverse` (recommended):** keep Server Url at `http://localhost:5080` and run:
-  ```bash
-  adb reverse tcp:5080 tcp:5080
-  ```
-- **Wi-Fi:** set Server Url to `http://<your-PC-LAN-IP>:5080`. Run the server with `--urls http://0.0.0.0:5080`, and allow port 5080 through Windows Firewall.
+### 2. Build the Kotlin bridge
 
-### 6. Build and run
-Use **Build And Run**. You can check the result in `adb logcat` by filtering for `SoundAds`:
+```powershell
+cd native\android
+$env:JAVA_HOME = "$AP\OpenJDK"; $env:ANDROID_HOME = "$AP\SDK"
+.\gradlew.bat copyAarToUnity
+```
+
+This writes `Packages/com.darjanrac.soundads/Plugins/Android/soundads-bridge.aar`. You only need to rebuild it when the Kotlin code changes. If the build complains about the SDK path, see [Troubleshooting](#troubleshooting).
+
+### 3. Configure Unity
+
+1. Go to **File → Build Profiles → Android → Switch Platform**.
+2. In the Project window, select **Packages → SoundAds SDK → Plugins → Android → soundads-bridge**. Make sure only **Android** is ticked; that's Unity's default for `.aar` files.
+3. Choose **Tools → SoundAds → Create or Select Settings**, which creates `Assets/Resources/SoundAdsSettings.asset`:
+
+   | Field | Value |
+   |---|---|
+   | API Key | `test-key` |
+   | Server Url | `http://localhost:5080` over USB, or `http://<PC-IP>:5080` over Wi-Fi (see step 4) |
+   | Test Mode | Off. On means offline ads only. |
+   | Fallback To Offline Ads | On |
+
+4. In **Project Settings → Player → Android → Other Settings**, set:
+   - **Package Name**: your own, for example `com.yourname.tictactoe`
+   - **Allow downloads over HTTP**: **Always allowed**. The dev server is plain `http://`. Use HTTPS and *Not allowed* in production.
+   - **Internet Access**: **Require**
+5. In the Android build profile, tick **Development Build** and leave **Build App Bundle** off so you get an APK.
+6. Use **File → Save Project**. Player Settings only reach the disk when you save.
+
+### 4. Connect the phone to the server
+
+On the phone, `localhost` means the phone itself, so choose one of these two options.
+
+**A. USB cable (recommended)**
+
+Keep Server Url at `http://localhost:5080` and forward the port:
+
+```powershell
+& "$AP\SDK\platform-tools\adb.exe" devices
+& "$AP\SDK\platform-tools\adb.exe" reverse tcp:5080 tcp:5080
+```
+
+Run the `reverse` command again whenever you unplug the phone.
+
+**B. Same Wi-Fi, no cable**
+
+1. Run `ipconfig` and find the **IPv4 Address** of the *Wi-Fi* adapter. Ignore `vEthernet`, which belongs to Hyper-V/WSL.
+2. Set Server Url to `http://<that-IP>:5080`, then save the project.
+3. Open the port in an **admin** PowerShell:
+   ```powershell
+   New-NetFirewallRule -DisplayName "SoundAds dev 5080" -Direction Inbound -Protocol TCP -LocalPort 5080 -Action Allow -Profile Private
+   ```
+   Your Wi-Fi network has to be set to *Private* in Windows.
+4. Check from the **phone's browser**: `http://<that-IP>:5080/health` should return `{"status":"ok"…}`.
+
+> **Office, coworking or hotel Wi-Fi** usually has *client isolation*: devices reach the internet but not each other, so the health check never loads. Turn on your **phone's hotspot**, connect the PC to it, and use the new IP instead. The IP can change each time you reconnect.
+
+### 5. Build and install
+
+- **With a cable:** go to **Build Profiles → Android**, pick your phone under *Run Device*, and click **Build And Run**.
+- **Without a cable:** click **Build**, copy the `.apk` to the phone (Drive, Quick Share, email…), open it, and allow *Install unknown apps*.
+
+> **Start the server and the connection first.** The SDK checks `/health` once, in `Initialize`. If the server is unreachable at launch, that whole session uses offline ads. After fixing the connection, force-stop the app and open it again.
+
+### 6. Verify
+
+With a cable you can stream the logs:
+
+```powershell
+& "$AP\SDK\platform-tools\adb.exe" logcat -s Unity SoundAds
+```
 
 | What you do | What you should see |
 |---|---|
-| Launch the app | `Native Android bridge connected (volume=…)`. If you see `Android bridge unavailable` instead, the AAR is missing. |
-| Play music in Spotify, then trigger an ad | Spotify pauses during the ad and resumes when it ends (audio focus). |
-| Turn the media volume to 0 and trigger an ad | The ad is refused with `DeviceMuted`, and the game continues. |
-| Play some ads | Impressions and completions appear on the server's dashboard. |
+| Launch the app | `[SoundAds] Initializing SDK … server=…`, then `Native Android bridge connected (volume=…)`, then `[Ads] SDK initialised: True` |
+| Finish a game and tap **Retry** twice | A **spoken** ad plays, and the server console logs `Fill ad-… -> placement=standard_between_games` |
+| Use the free undo, then tap **+1 UNDO (AD)** | A rewarded ad plays and you get an extra undo |
+| Play Spotify, then trigger an ad | Spotify pauses for the ad and resumes afterwards (audio focus) |
+| Set media volume to 0, then trigger an ad | The ad is refused with `DeviceMuted` and the game carries on |
+| Refresh `/dashboard` | Impressions, completions, mutes and rewards per ad, moment and placement |
 
-If the server can't be reached, the device still plays offline ads, and the log reads `Ad server … unreachable; serving offline test ads`.
+Without a cable, use the server console and the dashboard. Spoken ads mean the server is serving them; short generated jingles mean the app fell back to offline ads.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `Ad server … unreachable; serving offline test ads` | The server or the connection wasn't up at launch. Check `/health` from the phone's browser, then force-stop and relaunch the app. |
+| `Android bridge unavailable, using simulated device audio` | The `.aar` is missing, or Android isn't ticked on it. Rebuild it (step 2). |
+| `Insecure connection not allowed` | **Allow downloads over HTTP** isn't set, or Player Settings weren't saved. |
+| `Http401` on ad requests | The API key in `SoundAdsSettings` doesn't match `SoundAds:ApiKeys` in `appsettings.json`. |
+| Gradle: `JAVA_HOME is set to an invalid directory: \OpenJDK` | `$AP` isn't set in that terminal. |
+| Gradle: `The filename, directory name, or volume label syntax is incorrect` | `native/android/local.properties` has single backslashes in `sdk.dir`, which is an escape character in `.properties` files. Use forward slashes: `sdk.dir=C:/Program Files/Unity/Hub/Editor/6000.3.11f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK` |
+| Health check works on the PC but not from the phone over Wi-Fi | The firewall rule doesn't cover the active network profile, or the Wi-Fi uses client isolation. Use the hotspot or a cable. |
 
 ---
 
@@ -147,15 +221,26 @@ If the server can't be reached, the device still plays offline ads, and the log 
 
 | Suite | How to run | Covers |
 |---|---|---|
-| SDK EditMode (17) | **Window → General → Test Runner → EditMode** | Wire format, JSON, event batching and retry, network fallback |
-| SDK PlayMode (9) | Test Runner → PlayMode | Rewarded, standard and mute flows, the muted-device gate, tracking. 3 tests run against the live server and are skipped if it isn't running. |
+| SDK EditMode (17) | **Window → General → Test Runner → EditMode** | Wire format, JSON parsing, event batching and retry, network fallback |
+| SDK PlayMode (9) | Test Runner → **PlayMode** | Rewarded, standard and mute flows, the muted-device gate, tracking, publisher exceptions. 3 tests hit the live server and are skipped if it isn't running. |
 | Server (10) | `dotnet test backend` | Fill, no fill, auth, events, report, CORS |
 
 The SDK tests are registered through `"testables"` in `Packages/manifest.json`.
 
-## Docs
+## Repository layout
 
-- [SDK README](Packages/com.darjanrac.soundads/README.md): public API, guarantees, architecture
-- [Server README](backend/README.md)
-- [Android bridge README](native/android/README.md)
-- `Project Spec/`: the original game assignment
+```
+Assets/                         game: scenes, scripts (Core, Game, UI, Ads), art, audio
+Packages/com.darjanrac.soundads SoundAds SDK: Runtime, Editor (settings provider), Tests, Samples
+native/android/                 Kotlin bridge (Gradle project), copyAarToUnity task
+backend/SoundAds.Server/        ad server, ads.json inventory, wwwroot/audio creatives, dashboard
+backend/SoundAds.Server.Tests/  server integration tests
+docs/                           WebGL build of the game (GitHub Pages)
+Project Spec/                   original game assignment
+```
+
+## More docs
+
+- [SDK README](Packages/com.darjanrac.soundads/README.md): public API, guarantees, architecture, server contract
+- [Server README](backend/README.md): endpoints, inventory, configuration
+- [Android bridge README](native/android/README.md): Kotlin build and JNI surface

@@ -4,10 +4,10 @@ A small ASP.NET Core (.NET 10) minimal API. It serves audio ads to the Unity SDK
 
 ```bash
 cd backend/SoundAds.Server
-dotnet run --urls http://localhost:5080
+dotnet run --no-launch-profile --urls http://0.0.0.0:5080
 ```
 
-Then open http://localhost:5080/dashboard to see the live report.
+Then open http://localhost:5080/dashboard to see the live report. Binding to `0.0.0.0` lets a phone reach the server, over USB with `adb reverse tcp:5080 tcp:5080` or over the same Wi-Fi using the PC's IP. For the full device setup, see the [root README](../README.md#full-android-build-game-sdk-bridge-and-server-on-a-phone).
 
 | Endpoint | Purpose |
 |---|---|
